@@ -1,8 +1,10 @@
 [
     {
-        "file.txt": {"description": "test file description", "username": "test"}
+        "name": "file.txt", 
+        "description": "test file description"
     },
     {
-        "file2.txt": {"description": "test file description", "username": "test"}
+        "name": "file2.txt", 
+        "description": "second 2 test file description"
     }
 ]
