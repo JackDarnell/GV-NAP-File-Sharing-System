@@ -4,7 +4,7 @@ import socket, os, json
 from threading import Thread
 
 server_ip = 'localhost'
-server_port = 1701
+server_port = 1600
 buffer_size = 1000024
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,7 +14,7 @@ server_socket.listen()
 exampleFile = {'name' : 'file1.txt', 'username' : "TEST", "description" :"test description"}
 exampleUser = {'username': ['speed', 'port number', 'host name']}
 
-users = {} #dictionary of files, key is keyword, value is list of files that match keyword
+users = {} #dictionary of users
 files = [] #hosts register function USERNAME, HOSTNAME, CONNECTION SPEED
 
 
@@ -43,7 +43,7 @@ def control_thread(client_socket, client_address):
             client_socket.send('file list received'.encode())
             for file in files:
                 print(file)
-        if command.split(' ')[0] == 'KEYWORD':
+        elif command.split(' ')[0] == 'KEYWORD':
             #search the dictionary of files for the keyword
             foundFiles = []
             for file in files:
@@ -60,6 +60,15 @@ def control_thread(client_socket, client_address):
             else:
                 client_socket.send(json.dumps(foundFiles).encode())
             print(command.split(' ')[1])
+        elif command.split(' ')[0] == 'QUIT':
+            client_socket.close()
+            #remove files from user
+            for file in files:
+                if file['username'] == currentUser:
+                    files.remove(file)
+            #remove user from users
+            users.pop(currentUser)            
+            break
             
 
 while True:

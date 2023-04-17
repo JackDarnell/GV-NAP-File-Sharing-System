@@ -8,11 +8,11 @@ server_port = 1699
 buffer_size = 1000024
 
 
-ftp_server_port = 1500
+ftp_server_port = 1525
 ftp_server_ip = 'localhost'
 
 ftp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-ftp_server_socket.bind((server_ip, server_port))
+ftp_server_socket.bind((ftp_server_ip, ftp_server_port))
 ftp_server_socket.listen()
 #register function, send list of shared files and corresponding keywords to central server
 
@@ -64,7 +64,17 @@ def main_thread():
                 for file in file_list:
                     print(file)
         elif command.split(' ')[0] == 'download':
-            print('Downloading file')
+            serverInfo = input("enter peer hostname, server port, and filename with a space in between: ")
+            data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            data_socket.connect((serverInfo.split(' ')[0], int(serverInfo.split(' ')[1])))
+            data_socket.send(('DOWNLOAD ' + serverInfo.split(' ')[2]).encode())
+            fileData = data_socket.recv(buffer_size)
+            if fileData.decode() == 'File not found':
+                print(fileData.decode())
+            else:
+                file = open(serverInfo.split(' ')[2], 'wb')
+                file.write(fileData)
+                file.close()
         else:
             print('Invalid command')
     print('Exiting main thread')
@@ -79,7 +89,7 @@ def serve_files():
         ftp_client_socket, ftp_client_address = ftp_server_socket.accept()
         print('Connection from', ftp_client_address)
         while True:
-            command = client_socket.recv(buffer_size).decode()
+            command = ftp_client_socket.recv(buffer_size).decode()
             print('Received', command)
             if command.split(' ')[0] == 'DOWNLOAD':
                 fileName = command.split(' ')[1]
