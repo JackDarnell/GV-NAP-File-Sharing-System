@@ -4,7 +4,7 @@ import socket, os, json
 from threading import Thread
 
 server_ip = 'localhost'
-server_port = 1600
+server_port = 1601
 buffer_size = 1000024
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,6 +31,7 @@ def control_thread(client_socket, client_address):
         if command.split(' ')[0] == 'REGISTER_USER':
             #add the host to the dictionary of registered hosts
             currentUser = command.split(' ')[1]
+            global users
             users[command.split(' ')[1]] = {'username': command.split(' ')[1], 'hostname': command.split(' ')[2], 'speed': command.split(' ')[3], 'port': command.split(' ')[4]}
             #send the host a confirmation message
             client_socket.send('register success'.encode())
@@ -43,6 +44,10 @@ def control_thread(client_socket, client_address):
             client_socket.send('file list received'.encode())
             for file in files:
                 print(file)
+            for user in users:
+                print(user)
+                for key in users[user]:
+                    print(key, users[user][key])
         elif command.split(' ')[0] == 'KEYWORD':
             #search the dictionary of files for the keyword
             foundFiles = []
@@ -53,6 +58,8 @@ def control_thread(client_socket, client_address):
                     foundFile['port'] = users[file['username']]['port']
                     foundFile['speed'] = users[file['username']]['speed']
                     foundFile['file_name'] = file['name']
+                    if file['username'] == currentUser:
+                        foundFile['owner'] = True
                     foundFiles.append(foundFile)
             #send the host a list of files that match the keyword
             if(len(foundFiles) == 0):
@@ -61,13 +68,16 @@ def control_thread(client_socket, client_address):
                 client_socket.send(json.dumps(foundFiles).encode())
             print(command.split(' ')[1])
         elif command.split(' ')[0] == 'QUIT':
+            client_socket.send('quit success'.encode())
             client_socket.close()
             #remove files from user
-            for file in files:
-                if file['username'] == currentUser:
-                    files.remove(file)
+            i = len(users)
+            while i:
+                i -= 1
+                if files[i]['username'] == currentUser:
+                    del files[i]
             #remove user from users
-            users.pop(currentUser)            
+            del users[currentUser]       
             break
             
 

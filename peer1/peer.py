@@ -8,7 +8,7 @@ server_port = 1699
 buffer_size = 1000024
 
 
-ftp_server_port = 1525
+ftp_server_port = 1522
 ftp_server_ip = 'localhost'
 
 ftp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,6 +29,7 @@ ftp_server_socket.listen()
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_username = ''
+running = True
 #generate a random number between 1 and 3 representing connection speed
 #connection_speed = 
 
@@ -75,30 +76,37 @@ def main_thread():
                 file = open(serverInfo.split(' ')[2], 'wb')
                 file.write(fileData)
                 file.close()
+                print('File downloaded')
+            data_socket.close()
+        elif command.split(' ')[0] == 'quit':
+            client_socket.send('QUIT'.encode())
+            client_socket.close()
+            global running
+            running = False
+            break
         else:
             print('Invalid command')
     print('Exiting main thread')
 
 def recieveControlMessages():
-    while True:
+    while running:
         message = client_socket.recv(buffer_size).decode()
         print(message)
 
 def serve_files():
-    while True:
+    while running:
         ftp_client_socket, ftp_client_address = ftp_server_socket.accept()
         print('Connection from', ftp_client_address)
-        while True:
-            command = ftp_client_socket.recv(buffer_size).decode()
-            print('Received', command)
-            if command.split(' ')[0] == 'DOWNLOAD':
-                fileName = command.split(' ')[1]
-                if os.path.isfile(fileName):
-                    with open(fileName, 'rb') as f:
-                        fileData = f.read()
-                    ftp_client_socket.send(fileData)
-                else:
-                    ftp_client_socket.send('File not found'.encode())
+        command = ftp_client_socket.recv(buffer_size).decode()
+        print('Received', command)
+        if command.split(' ')[0] == 'DOWNLOAD':
+            fileName = command.split(' ')[1]
+            if os.path.isfile(fileName):
+                with open(fileName, 'rb') as f:
+                    fileData = f.read()
+                ftp_client_socket.send(fileData)
+            else:
+                ftp_client_socket.send('File not found'.encode())
 
 
 client_username = input('Enter username: ')
