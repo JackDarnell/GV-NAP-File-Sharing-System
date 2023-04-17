@@ -1,0 +1,8 @@
+[
+    {
+        "file.txt": {"description": "test file description", "username": "test"}
+    },
+    {
+        "file2.txt": {"description": "test file description", "username": "test"}
+    }
+]
