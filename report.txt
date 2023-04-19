@@ -1,0 +1,32 @@
+COMPLETION PERCENTAGE: 100% no GUI
+
+
+REPORT:
+The central server works by storing the users as a dictionary and the files as a list 
+of  dictionaries. There is a control thread that takes the commands register and keyword for searches.
+Each time a client connects a new control thread is created to manage the client.
+Finding files just works by using a for loop to check every file to see if it is the one,
+and then it returns a list of found files in json format to the client. 
+The server also takes a file list which is json that is encoded as text and then converted into 
+a list of dictionaries that is added to the files list. When the client quits it then loops through the users
+and files to remove all of the files associated with the client as well as the user information.
+
+The peers work by having one main thread that takes input from the terminal.
+When it connects to the central server it takes the json file in its directory and 
+encodes it then sends it to the server. It also creates a new thread to recieve 
+control messages once it has registered with the server to prevent hanging when waiting for a 
+servers response. It also begins serving files by opening a new socket, when another
+peer goes to download a file it searches to see if the file exists and then either sends back
+file not found or the actual file. 
+
+The most difficult part was figuring out how to store the file list and the list of users.
+Since all of the data is related I almost combined it all into a one list of user dictionaries that each 
+contain a list of files with a dict for each file, but as I began implementing that it quickly became clear 
+that that would overcomplicate it, so I just used a list of files and then users. The other issue I ran into
+is keeping the list of files updated correctly depending on if a user quit, I originally used a for loop
+but occasionaly there would be a random crash saying that it attempted to search the user list and get user info 
+but they didn't exist, so there wasnt a problem with the users dict but just with the file list. 
+Eventually after doing some digging on stack overflow I found that deleting an item from a list with a for loop
+is generally a bad idea, because the list items index's change when it happens. So I then switched it to while loop
+that starts at the end of the list so that items index would not change on deletion. 
+
