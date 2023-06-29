@@ -15,3 +15,7 @@ Files shared by the peer should be in the working directory of peer.py. A json f
 ### Central Server:
 - Prompts user for port, no other commands necessary. 
 
+### To-Dos:
+- Add automatic files.json creation from within peer. Should prompt user for each file in the current directory.
+- Quit command for central server.
+- Error handling for peer commands. 
