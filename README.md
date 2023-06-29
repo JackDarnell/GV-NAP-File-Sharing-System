@@ -20,6 +20,8 @@ Files shared by the peer should be in the working directory of peer.py. A json f
 - When central server quits send quit command to peers.
 - Error handling for peer commands. 
 - Change buffer handling so data larger than the buffer is sent using a loop, recieving code will need to check for a termination character to determine if all of the past message has been sent. 
+- Split different commands into their own functions for readability
+- Add port specification to peer FTP server
 
 ### Bugs:
 - When a client crashes the central server control thread for that client hits an infinite loop, need to find a way to detect when the client disconnects without quitting, clear their files and username, and close the control thread for the client. 

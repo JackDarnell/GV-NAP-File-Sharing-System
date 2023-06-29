@@ -8,7 +8,7 @@ server_port = 1699
 buffer_size = 1000024
 
 
-ftp_server_port = 1522
+ftp_server_port = 1521
 ftp_server_ip = 'localhost'
 
 ftp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,7 +34,8 @@ running = True
 #connection_speed = 
 
 def main_thread():
-    while True:
+    global running
+    while running:
         command = input("enter command: ")
         if command.split(' ')[0] == 'register':
             hostInfo = input("enter hostname server port with a space in between: ")
@@ -80,18 +81,18 @@ def main_thread():
             data_socket.close()
         elif command.split(' ')[0] == 'quit':
             client_socket.send('QUIT'.encode())
-            client_socket.close()
-            global running
-            running = False
-            break
         else:
             print('Invalid command')
-    print('Exiting main thread')
+    
 
 def recieveControlMessages():
-    while running:
+    while True:
         message = client_socket.recv(buffer_size).decode()
         print(message)
+        if message == 'quit success':
+            client_socket.close()
+            running = False
+            return
 
 def serve_files():
     while running:

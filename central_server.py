@@ -32,7 +32,7 @@ def assign_port(port):
         server_port = port
         return True 
 
-
+# Attempt to start the server, return error if it fails
 def start_server():
     try:
         server_socket.bind((server_hostname, server_port))
