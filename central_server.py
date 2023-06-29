@@ -96,7 +96,6 @@ def control_thread(client_socket, client_address):
             print(command.split(' ')[1])
         elif command.split(' ')[0] == 'QUIT':
             client_socket.send('quit success'.encode())
-            client_socket.close()
             #remove files from user
             i = len(users)
             while i:
@@ -104,8 +103,10 @@ def control_thread(client_socket, client_address):
                 if files[i]['username'] == currentUser:
                     del files[i]
             #remove user from users
-            del users[currentUser]       
-            break
+            del users[currentUser]  
+            client_socket.close()  
+            return   
+            #break
             
 
 while True:
