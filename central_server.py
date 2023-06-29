@@ -3,19 +3,46 @@
 import socket, os, json
 from threading import Thread
 
-server_ip = 'localhost'
-server_port = 1601
+server_hostname = socket.gethostname()
+server_port = 0
 buffer_size = 1000024
-
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((server_ip, server_port))
-server_socket.listen()
+server_running = False
+port_valid = False
+
                         
 exampleFile = {'name' : 'file1.txt', 'username' : "TEST", "description" :"test description"}
 exampleUser = {'username': ['speed', 'port number', 'host name']}
 
 users = {} #dictionary of users
 files = [] #hosts register function USERNAME, HOSTNAME, CONNECTION SPEED
+
+#check if port is valid and assign it
+def assign_port(port):
+    global server_port
+    try:
+        port = int(port)
+    except ValueError:
+        print("Invalid port number")
+        return False
+    if port < 1024 or port > 65535: #0-1023 reserved for common apps
+        print("Port reserved or out of range")
+        return False
+    else:
+        server_port = port
+        return True 
+
+
+def start_server():
+    try:
+        server_socket.bind((server_hostname, server_port))
+        server_socket.listen()
+        print("Server started with hostname: ", server_hostname, " and port: ", server_port)
+        return True
+    except socket.error as e:
+        print("Error creating socket: ", e)
+        return False
+
 
 
 #recieve keyword search from host, return list of files that match keyword
@@ -82,7 +109,12 @@ def control_thread(client_socket, client_address):
             
 
 while True:
-    client_socket, client_address = server_socket.accept()
-    thread = Thread(target=control_thread, args=(client_socket, client_address))
-    thread.start()
+    port = input("Enter port number: ")
+    if assign_port(port):
+        if start_server():
+            client_socket, client_address = server_socket.accept()
+            thread = Thread(target=control_thread, args=(client_socket, client_address))
+            thread.start()
+        else:
+            print("Server failed to start, restarting...")
         
