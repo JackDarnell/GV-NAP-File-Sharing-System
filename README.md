@@ -14,7 +14,7 @@ Files shared by the peer should be in the working directory of peer.py. A json f
 ### Central Server:
 - Prompts user for port, no other commands necessary. 
 
-### To-Dos:
+## To-Dos:
 - Add automatic files.json creation from within peer. Should prompt user for each file in the current directory.
 - Quit command for central server. 
 - When central server quits send quit command to peers.
@@ -23,6 +23,6 @@ Files shared by the peer should be in the working directory of peer.py. A json f
 - Split different commands into their own functions for readability
 - Add port specification to peer FTP server
 
-### Bugs:
+## Bugs:
 - When a client crashes the central server control thread for that client hits an infinite loop, need to find a way to detect when the client disconnects without quitting, clear their files and username, and close the control thread for the client. 
 - When client quits the program doesn't exit properly, it appears to exit the main thread and then hang. 
